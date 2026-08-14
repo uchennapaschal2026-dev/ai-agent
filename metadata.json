@@ -1,0 +1,10 @@
+{
+  "name": "Robert AI Voice Agent",
+  "description": "A universal voice AI agent offering live conversations, text chat, TTS, and video generation capabilities.",
+  "requestFramePermissions": [
+    "microphone"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
