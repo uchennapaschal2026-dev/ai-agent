@@ -6,6 +6,7 @@ export default function LiveAgent() {
   const [connected, setConnected] = useState(false);
   const [connecting, setConnecting] = useState(false);
   const [muted, setMuted] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   
   const wsRef = useRef<WebSocket | null>(null);
   const inputAudioCtxRef = useRef<AudioContext | null>(null);
@@ -17,6 +18,7 @@ export default function LiveAgent() {
   const startCall = async () => {
     try {
       setConnecting(true);
+      setError(null);
       
       const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
       const wsUrl = `${protocol}//${window.location.host}/live`;
@@ -70,8 +72,13 @@ export default function LiveAgent() {
         stopCall();
       };
       
-    } catch (err) {
+    } catch (err: any) {
       console.error("Error starting call:", err);
+      if (err.name === 'NotAllowedError' || (err.message && err.message.includes('Permission denied'))) {
+        setError('Microphone permission denied. Please allow microphone access in your browser settings to use voice features.');
+      } else {
+        setError('Failed to start the call. Please ensure your microphone is connected and try again.');
+      }
       stopCall();
     }
   };
@@ -145,9 +152,9 @@ export default function LiveAgent() {
           </div>
         </div>
 
-        <div className="mt-16 flex items-center gap-6">
+        <div className="mt-16 flex flex-col items-center gap-6">
           {connected ? (
-            <>
+            <div className="flex items-center gap-6">
               <button
                 onClick={() => setMuted(!muted)}
                 className={`p-4 rounded-full transition-colors border ${
@@ -165,7 +172,7 @@ export default function LiveAgent() {
                 <PhoneOff className="w-5 h-5" />
                 End Call
               </button>
-            </>
+            </div>
           ) : (
             <button
               onClick={startCall}
@@ -179,6 +186,12 @@ export default function LiveAgent() {
               )}
               {connecting ? 'Connecting...' : 'Start Conversation'}
             </button>
+          )}
+
+          {error && (
+            <div className="text-rose-400 text-sm max-w-sm text-center bg-rose-500/10 p-3 rounded-lg border border-rose-500/20">
+              {error}
+            </div>
           )}
         </div>
       </div>
